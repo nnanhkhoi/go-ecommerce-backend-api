@@ -1,1 +1,6 @@
 ./docs
+
+main.exe
+go.sum
+
+.fleet
