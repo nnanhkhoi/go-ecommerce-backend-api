@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"go.uber.org/zap"
@@ -38,7 +39,22 @@ func getEncoderLog() zapcore.Encoder {
 }
 
 func getWriterSync() zapcore.WriteSyncer {
-	file, _ := os.OpenFile(".log/log.txt", os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	logDir := ".log"
+	logFile := logDir + "/log.txt"
+
+	// Ensure the directory exists
+	if _, err := os.Stat(logDir); os.IsNotExist(err) {
+		if err := os.Mkdir(logDir, os.ModePerm); err != nil {
+			log.Printf("Failed to create log directory: %v", err)
+			return nil
+		}
+	}
+
+	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModePerm)
+	if err != nil {
+		log.Printf("Failed to open log file: %v", err)
+		return nil
+	}
 
 	syncFile := zapcore.AddSync(file)
 	syncConsole := zapcore.AddSync(os.Stderr)
